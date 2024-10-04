@@ -1,6 +1,6 @@
 ---
 title: "Homework 3 Case Study"
-author: "Patric Platts"
+author: "Patric Platts and Daisy Harris"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1
 
-To check fi there is evidence of diminishing returns on extracurricular activities in terms of student learning we can look at a plot of the data of Income vs student learning and fit a polynomial or spline to a the lm() function to see if how the plot is graphed. If the graph is concave we can see that there is diminishing returns on extracurricular activities, if it's convex or linear, we can say not be able to see evidence of diminishing returns on extracurricular activities.
+To check if there is evidence of diminishing returns on extracurricular activities in terms of student learning we can look at a plot of the data of Income vs student learning and fit a polynomial or spline to a the lm() function to see if how the plot is graphed. If the graph is concave we can see that there is diminishing returns on extracurricular activities, if it's convex or linear, we can say not be able to see evidence of diminishing returns on extracurricular activities.
 
 ## 2
 
