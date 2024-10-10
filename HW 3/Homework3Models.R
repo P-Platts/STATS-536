@@ -7,7 +7,7 @@ library(Metrics)
 
 
 # Exploratory Data Analysis
-school <- read.table('Homework3/SchoolResults.txt', header=T)
+school <- read.table("STATS-536/HW 3/SchoolResults.txt", header = T, sep = " ")
 
 cor(school)
 hist(school$Score)
@@ -41,7 +41,20 @@ gam_test_predict <- predict(model_gam, newdata = X_test, type = "response")
 gam_test_RMSE <- rmse(y_test, gam_test_predict)
 gam_test_RMSE
 
+gam.test.errors = numeric(nrow(school))
 
+for(i in 1:nrow(school)){
+  train = school[-i,]
+  test = school[i,]
+
+  ### GAM
+  # gam will cv itself, but we want to compare OOS MSE
+  model = gam(Score ~ s(Lunch) + Computer + Expenditure + s(Income) + s(English) + STratio,data=train)
+  yhat = predict(model,newdata = test)
+  gam.test.errors[i] = test$Score - yhat
+}
+
+sqrt(mean(gam.test.errors^2))
 
 # Linear Model
 model_lm <- lm(Score ~ ., data = school)

@@ -1,0 +1,62 @@
+---
+title: "School Scores Unit 3"
+author: "Patric Platts & Daisy Harris"
+date: "`r Sys.Date()`"
+output: pdf_document
+abstract: "Include Here"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Read in the libraries that will be used
+library(tidyverse)
+library(mgcv)
+library(glmnet)
+library(knitr)
+library(patchwork)
+library(corrplot)
+library(gridExtra)
+library(splines)
+
+# Read in the data
+school <- read.table("SchoolResults.txt", header = T, sep = " ")
+```
+
+```{r EDA, include=FALSE}
+corrplot(cor(school), method = "number")
+
+# # Adjust layout to a 2x3 grid
+# par(mfrow = c(2, 3))
+# 
+# # Plot each pair of variables
+# plot(school$Lunch, school$Scores, main = "Lunch vs Scores")
+# plot(school$Computer, school$Scores, main = "Computer vs Scores")
+# plot(school$Expenditure, school$Scores, main = "Expenditure vs Scores")
+# plot(school$Income, school$Scores, main = "Income vs Scores")
+# plot(school$English, school$Scores, main = "English vs Scores")
+# plot(school$STratio, school$Scores, main = "STratio vs Scores")
+
+if(!"Score" %in% names(school)) {
+  stop("The 'school' dataset does not contain a 'Score' column. Please check the data.")
+}
+
+
+# Create individual plots with the correct column name "Score"
+p1 <- ggplot(school, aes(x = Lunch, y = Score)) + geom_point() + ggtitle("Lunch vs Score")
+p2 <- ggplot(school, aes(x = Computer, y = Score)) + geom_point() + ggtitle("Computer vs Score")
+p3 <- ggplot(school, aes(x = Expenditure, y = Score)) + geom_point() + ggtitle("Expenditure vs Score")
+p4 <- ggplot(school, aes(x = Income, y = Score)) + geom_point() + ggtitle("Income vs Score")
+p5 <- ggplot(school, aes(x = English, y = Score)) + geom_point() + ggtitle("English vs Score")
+p6 <- ggplot(school, aes(x = STratio, y = Score)) + geom_point() + ggtitle("STratio vs Score")
+
+# Arrange the plots in a grid layout
+grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 3)
+```
+
+```{r model, include=FALSE}
+school.gam <- gam(Score ~ s(Lunch) + s(Income) + s(English) + STratio + Expenditure + Computer, data = school)
+
+school.lm <- lm(Score ~ ns(Lunch) + ns(Income) + ns(English) + STratio + Expenditure + Computer, data = school)
+
+```

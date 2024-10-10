@@ -11,16 +11,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1
 
-To check if there is evidence of diminishing returns on extracurricular activities in terms of student learning we can look at a plot of the data of Income vs student learning and fit a polynomial or spline to a the lm() function to see if how the plot is graphed. If the graph is concave we can see that there is diminishing returns on extracurricular activities, if it's convex or linear, we can say not be able to see evidence of diminishing returns on extracurricular activities.
+To check if there is evidence of diminishing returns on extracurricular activities in terms of student learning we can look at a plot of the data of Income vs student learning and fit a polynomial or spline to a the gam() function to see if how the plot is graphed. If the graph is concave we can see that there is diminishing returns on extracurricular activities, if it's convex or linear, we can say not be able to see evidence of diminishing returns on extracurricular activities.
 
 ## 2
 
-Similar to question one, we use the model that we fit with the polynomial term or splines, but we look at the variable of English as a second language vs student learning to see how the graph changes.
+Similar to question one, we use the model that we fit with the polynomial term or splines, but we look at the percent English as a second language vs student learning to see how the graph changes. If the percent of people learning English is high then the student scores should be lower than where the percent is lower. Fit the model using a spline or polynomial throught the gam() function we should be able to see if the graph is decreasing.  
 
 ## 3
 
-Look at the various plots to see how student learning is increasing compared to the different covariates in the data. 
+Look at the various plots to see how student learning is affected by the various covariates of the data. We will use a GAM to determine what is playing a role in student scores. Then use our critial thinking abilities to determine what gets a higher score on the standardized exam.  
 
 ## 4
 
-We compare two different models of the data one potential being a spline, polynomial or GAM, verus using OLS or PCR. Then looking at the way that the different models predict in and out-of-sample, using either adjusted R^2 or RMSE to explain which one is a better predictor of the data. 
+We compare two different models of the data one potential being a spline, polynomial or GAM, versus using OLS or PCR. Then looking at the way that the different models predict in and out-of-sample, using either adjusted R^2 or RMSE to explain which one is a better predictor of the data. 
