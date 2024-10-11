@@ -4,7 +4,7 @@ library(splines)
 library(mgcv)
 library(MASS)
 library(Metrics)
-
+library(tidyverse)
 
 # Exploratory Data Analysis
 school <- read.table("STATS-536/HW 3/SchoolResults.txt", header = T, sep = " ")
@@ -27,7 +27,7 @@ y_test = test$Score
 
 
 # GAM model
-model_gam <- gam(Score ~ s(Lunch) + Computer + Expenditure + s(Income) + s(English) + STratio, data=train)
+gam_model <- gam(Score ~ s(Lunch) + Computer + Expenditure + s(Income) + s(English) + STratio, data=train)
 
 
 plot(model_gam, residuals = TRUE, se = TRUE, rug = TRUE)
@@ -74,6 +74,34 @@ lm_test_RMSE <- rmse(y_test, lm_test_predict)
 lm_test_RMSE
 
 
+# Initialize a vector to store the errors
+lm.test.errors = numeric(nrow(school))
+
+# LOOCV
+for(i in 1:nrow(school)){
+  # Training data excludes the ith observation
+  train = school[-i,]
+  # Test data is just the ith observation
+  test = school[i,]
+  
+  # Fit the linear model using the training data
+  model = lm(Score ~ Lunch + Computer + Expenditure + Income + English + 
+               STratio + Lunch:Computer + Lunch:Expenditure + Lunch:Income + 
+               Lunch:STratio + Computer:Expenditure + Computer:Income + 
+               Expenditure:Income + Expenditure:STratio, data = train)
+  
+  # Predict on the test data
+  yhat = predict(model, newdata = test)
+  
+  # Calculate the error for the ith observation
+  lm.test.errors[i] = test$Score - yhat
+}
+
+# Compute the RMSE from the test errors
+sqrt(mean(lm.test.errors^2))
+
+
+
 
 # Polynomial Model
 poly_model <- lm(Score ~ Lunch + Computer + Expenditure +
@@ -89,3 +117,14 @@ poly_test_predict <- predict(poly_model, newdata = X_test, type = "response")
 poly_test_RMSE <- rmse(y_test, poly_test_predict)
 poly_test_RMSE
 
+
+### 
+### Visualization
+###
+
+par(mfrow=c(2,2))  # Adjust plot layout to display 2x2
+plot(gam_model, se=TRUE, shade=TRUE, col="blue")
+
+# Optional: You can extract partial effects and customize with ggplot2
+# Extracting partial effects from the model
+vis_gam(gam_model, view = c("Lunch", "Income"), plot.type = "contour", color="terrain")
