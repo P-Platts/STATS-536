@@ -3,6 +3,7 @@ title: "Targeted Marketing Proposal"
 author: Camilla McKinnon and Patric Platts
 output: pdf_document
 date: "2024-10-28"
+abstract: "This analysis examines the bank's marketing campaign aimed at encouraging customers to open new credit card accounts. Using logistic regression, the model predicts the likelihood of a positive response based on customer demographics, contact methods, and campaign history. Results indicate that job type, education, and marital status are significant predictors, with students and social media contacts most likely to open accounts. Additionally, repeated contact across campaigns slightly increases the likelihood of a response, guiding future marketing strategies."
 ---
 ```{r, echo=FALSE, include=FALSE}
 library(tidyverse)
@@ -58,7 +59,7 @@ marketing <- marketing %>%
 
 ## Introduction
 
-An effective marketing campaign to the right audience is important for companies trying to extend their reach or grow a product. This analysis looks at a specific bank’s campaign. The bank uses a personalized marketing method to deliver individualized products to recipients. If the bank can better understand their customers, they can better target future marketing campaigns. This data set contains several variables on client characteristics (like age, job, education, loan status), method of contact, and when the contact happened. The response variable is whether or not the client opened a new bank account. One of the issues with the dataset is that the response rate is a binary variable (measured in ‘yes’ and ‘no’). Traditional standard regression won’t work since it would predict continuous values that would fall outside the 0-1 binary classification range. Additionally, many of our variables are categorical, which means they will need to be treated as factors in our model. Some of the factor levels have 'rare occurrences', meaning there are not many observations. Not accounting for that would lead to increased variance and unstable estimates. The following plot shows one of the variables, age, plotted against whether or not the client opened a bank account. 
+The bank uses a personalized marketing method to deliver individualized products to recipients. If the bank can better understand their customers, they can better target future marketing campaigns. This data set contains several variables on client characteristics (like age, job, education, loan status), method of contact, and when the contact happened. The response variable is whether or not the client opened a new bank account. One of the challenges with the dataset is that the response rate is a binary variable (measured in ‘yes’ and ‘no’). Traditional standard regression won’t work since it would predict continuous values that would fall outside the 0-1 binary classification range. Additionally, many of our variables are categorical, which means they will need to be treated as factors in our model. Some of the factor levels have 'rare occurrences', meaning there are not many observations, as an example only three individuals responded 'yes' to having credit in default, which is much less than those in the other categories. Not accounting for that would lead to increased variance and unstable estimates. The Figure 1 shows one of the variables, age, plotted against whether or not the client opened a bank account.
 
 ```{r, echo=FALSE,fig.width=6, fig.height=3, fig.cap="Scatterplot of Age and Account Opening Status with Jittering Applied. Age is plotted along the x-axis, while the binary response variable (Account Opened: 1 = Yes, 0 = No) is shown on the y-axis, with jittering added to reduce overplotting and improve visibility."}
 plot(jitter(marketing$age, amount = 0.1), jitter(as.numeric(marketing$y), amount = 0.1),
@@ -68,8 +69,11 @@ plot(jitter(marketing$age, amount = 0.1), jitter(as.numeric(marketing$y), amount
 ```
 
 After creating a sufficient model, this analysis will explore the following questions:
+
 - What characteristics of customers are more likely to take out a new credit card?
+
 - Is there evidence that social media vs. personal contact is more effective in marketing?
+
 - Does repeated contacting seem to increase the likelihood of a person taking out an account?
 
 
@@ -82,6 +86,26 @@ One of the models considered for this analysis was ordinary least squares (OLS) 
 The second model we consider is a logistic regression with LASSO regularization. Logistic regression is appropriate due to the binary nature of the response variable, while LASSO helps manage the large number of predictor variables, many of which have multiple factor levels. Including these factor levels substantially increases the number of predictors in the model, and adding interactions further expands this count to potentially astronomical levels, which could lead to overfitting. LASSO regularization addresses this by shrinking less informative coefficients to zero, effectively performing feature selection and helping prevent overfitting. LASSO with logistic regression helps identify the characteristics and factors associated with the likelihood of opening a new account by selecting only the most relevant predictors. In using LASSO, important assumptions to consider include independence of observations, normality of predictor distributions, and equal variance of residuals to ensure reliable and interpretable results.
 
 ## Model Evaluation 
+
+```{r AUC figure, echo=FALSE, warning=FALSE, fig.cap="ROC Curve illustrating the model's predictive performance compared to random guessing.", fig.width=3, fig.height=3}
+set.seed(123)
+train_index <- sample(seq_len(nrow(marketing)), size = 0.7 * nrow(marketing))
+train_data <- marketing[train_index, ]
+test_data <- marketing[-train_index, ]
+
+# Basic Model on Training Data
+basic <- glm(y ~ age + job + marital + education + default + contact + month + day_of_week +
+               campaign + cat_pdays + pdays + previous + poutcome + cat_pdays:previous + job:education,
+             data = train_data, family = binomial)
+
+# AUC Calculation for Basic Model
+fitted_test_values <- predict(basic, newdata = test_data, type = "response")
+
+suppressMessages({
+  roc_curve <- roc(test_data$y, fitted_test_values)
+})
+plot(roc_curve, col = "blue", lwd = 2, main = "ROC Curve for Model")
+```
 
 Each model was evaluated in-sample and out-of-sample using the Area Under the Curve (AUC) metric to assess classification performance. An AUC of 0.5 indicates that the model performs no better than random guessing, while an AUC greater than 0.5 shows improvement over random predictions. An AUC of 1.0 represents perfect classification across all thresholds, so a higher AUC reflects better performance. Out-of-sample AUC was calculated using 10-fold cross-validation, allowing each model to be trained 10 times to provide more reliable performance estimates. Table 1 presents the in-sample and out-of-sample AUC values for each model.
 
@@ -97,7 +121,7 @@ auc_table <- data.frame(
 kable(auc_table, caption = "Comparison of In-Sample and Out-of-Sample AUC for Basic and LASSO Logistic Regression Models")
 ```
 
-In Table 1, the AUC values for each model appear comparable, with the OLS model at 0.7553 and the LASSO model at 0.7600, showing only a minor difference. Given that both models performed similarly, the OLS model was selected for its simplicity and interpretability over the LASSO model.
+In Table 1, the AUC values for each model appear comparable, with the OLS model at 0.7553 and the LASSO model at 0.7600, showing only a minor difference. Given that both models performed similarly, the OLS model was selected for its simplicity and interpretability over the LASSO model. Figure 2 visualizes the sensitivity versus specificity of the model across various thresholds, illustrating its predictive accuracy at correctly identifying outcomes.
 
 ### Logistic Regression Model:
 
@@ -130,32 +154,50 @@ variables_table <- data.frame(
 )
 
 # Display the table with kable (without kableExtra)
-kable(variables_table, caption = "Variables in the Logistic Regression Model (Vector x'_i)")
+kable(variables_table, caption = "Variables in the Logistic Regression Model (X matrix)")
 ```
 
-A logistic regression model relies on several assumptions, including independence of observations, a monotonic relationship with predictor variables, a binary outcome, and no multicollinearity among predictors. In this analysis, the outcome variable—whether a client has opened a new account—is binary (yes or no). Based on the data collection method, we assume independence between observations. Exploratory analysis also suggests that the predictor variables have monotonic relationships with the outcome, indicating no apparent non-linear relationships.
+To address issues with rare events in the data, certain factors were combined into broader categories to improve model performance. For example, the 'illiterate' category in education was merged with 'basic.4yr' to form a single category, 'basic.4yr,' encompassing individuals with four years of education or less. This adjustment was made based on the similarity between basic four-year education and illiterate categories. A bidirectional selection process was applied to the OLS logistic model to identify predictors significant in determining the outcome. This process removed 'housing' and 'loan' variables, as they did not contribute to improving prediction accuracy. 
 
-```{r AUC figure, echo=FALSE, warning=FALSE, fig.cap="ROC Curve illustrating the model's predictive performance compared to random guessing, with AUC demonstrating the model's accuracy.", fig.width=3, fig.height=3}
-set.seed(123)
-train_index <- sample(seq_len(nrow(marketing)), size = 0.7 * nrow(marketing))
-train_data <- marketing[train_index, ]
-test_data <- marketing[-train_index, ]
+A logistic regression model relies on several assumptions, including independence of observations, a monotonic relationship with predictor variables, a binary outcome, and no multicollinearity among predictors. In this analysis, the outcome variable—whether a client has opened a new account—is binary (yes or no). Based on the data collection method, we assume independence between observations. Exploratory analysis also suggests that the predictor variables have monotonic relationships with the outcome, indicating no apparent non-linear relationships. For example see Figure 3 for the monotonic relationship between age versus account opened. 
 
-# Basic Model on Training Data
-basic <- glm(y ~ age + job + marital + education + default + contact + month + day_of_week +
-               campaign + cat_pdays + pdays + previous + poutcome + cat_pdays:previous + job:education,
-             data = train_data, family = binomial)
-
-# AUC Calculation for Basic Model
-fitted_test_values <- predict(basic, newdata = test_data, type = "response")
-
+```{r monotoicity, echo=FALSE, fig.cap="Monotonic relationship between age and account being opened.", warning=FALSE, fig.height=3, message=FALSE}
 suppressMessages({
-  roc_curve <- roc(test_data$y, fitted_test_values)
+  ggplot(marketing, aes(x = age, y = as.numeric(y) - 1)) +
+    geom_jitter(alpha = 0.5, width = 0.2, height = 0.25) +
+    geom_smooth(method = "lm", color = "blue") +
+    labs(x = "Age", y = "Account Opened (0 = No, 1 = Yes)",
+         title = "Age vs Account Opened") +
+    theme_minimal()
 })
-plot(roc_curve, col = "blue", lwd = 2, main = "ROC Curve for Model")
 ```
+
 
 ## Results
+
+```{r errors, echo=F}
+the.glm <- summary(basic)
+term <- rownames(the.glm$coefficients)
+
+
+# Calculate confidence intervals
+coef_table <- data.frame(
+  estimate = exp(the.glm$coef[,1]),
+  lower_ci = exp(the.glm$coef[,1] - qnorm(0.975) * the.glm$coef[,2]),
+  upper_ci = exp(the.glm$coef[,1] + qnorm(0.975) * the.glm$coef[,2])
+)
+
+# Filter for the selected terms
+filtered_coef_table <- coef_table %>%
+  filter(term %in% c("age", "marital", "maritalsingle", "jobstudent", "educationprofessional.course", 
+                     "educationuniversity.degree", "contactsocialMedia", "campaign", "previous"))
+
+# Display the table with knitr::kable
+kable(filtered_coef_table, 
+      col.names = c("Term", "Estimate", "Lower 95% CI", "Upper 95% CI"),
+      caption = "Odds Estimates and 95% Confidence Intervals for Selected Variables",
+      format = "markdown")
+```
 
 The odds coefficients reveal characteristics associated with a higher likelihood of applying for a credit card. Variable selection indicates that 'housing' and 'loan' status are not significant predictors of application outcomes, narrowing the focus to other influential factors.
 
@@ -170,4 +212,9 @@ As number of contacts occurring during a campaign increases for a specific custo
 ## Conclusion
 
 This analysis looked at the bank's credit card marketing campaign. To identify important factors and trends, we built a logistic regression model. The model indicated that customers who are students, have a high school education, or who are single are most likely to apply for a credit card. Customers with who obtained a university degree afterwards become less likely to open a card, though customers who went on to obtain a professional course are more likely to open a card. Social media contacting was more effective than direct contacting. Also if someone was contacted in a previous campaign, and then again in the current one, they were more likely to open a card as well. The potential exists that our model did not account for some correlation between the predictor variables. However, since the proposed model that would have accounted for that performed comparably, we went with the standard logistic regression. Further analysis could explore additional factors affecting credit card openings, such as income, credit score, and customer rated service quality.
+
+## Teamwork
+
+Each of us looked at one of the proposed models, looking at the assumptions and various selection methods associated. We then split up the writing into equal parts, coming together for the final draft of the project. 
+
 
