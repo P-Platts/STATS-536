@@ -135,7 +135,7 @@ kable(variables_table, caption = "Variables in the Logistic Regression Model (Ve
 
 A logistic regression model relies on several assumptions, including independence of observations, a monotonic relationship with predictor variables, a binary outcome, and no multicollinearity among predictors. In this analysis, the outcome variable—whether a client has opened a new account—is binary (yes or no). Based on the data collection method, we assume independence between observations. Exploratory analysis also suggests that the predictor variables have monotonic relationships with the outcome, indicating no apparent non-linear relationships.
 
-```{r AUC figure, echo=FALSE, warning=FALSE, fig.cap="ROC Curve illustrating the model's predictive performance compared to random guessing, with AUC demonstrating the model's accuracy.", fig.width=6, fig.height=3}
+```{r AUC figure, echo=FALSE, warning=FALSE, fig.cap="ROC Curve illustrating the model's predictive performance compared to random guessing, with AUC demonstrating the model's accuracy.", fig.width=3, fig.height=3}
 set.seed(123)
 train_index <- sample(seq_len(nrow(marketing)), size = 0.7 * nrow(marketing))
 train_data <- marketing[train_index, ]
@@ -148,8 +148,6 @@ basic <- glm(y ~ age + job + marital + education + default + contact + month + d
 
 # AUC Calculation for Basic Model
 fitted_test_values <- predict(basic, newdata = test_data, type = "response")
-test_auc <- roc(test_data$y, fitted_test_values)
-print(test_auc$auc)
 
 suppressMessages({
   roc_curve <- roc(test_data$y, fitted_test_values)
