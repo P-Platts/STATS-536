@@ -152,15 +152,18 @@ fitted_test_values <- predict(basic, newdata = test_data, type = "response")
 suppressMessages({
   roc_curve <- roc(test_data$y, fitted_test_values)
 })
-plot(roc_curve, col = "blue", lwd = 2, main = "ROC Curve for Basic Logistic Regression Model")
+plot(roc_curve, col = "blue", lwd = 2, main = "ROC Curve for Model")
 ```
 
 ## Results
 
-The odds coefficients for the variables show which customer characteristics make them more likely to apply for a credit card. The variable selection method showed that housing and loan weren't significant predictors for credit card outcomes. Then we see that students are the most likely to open a new credit card compared to other job holders, especially against admins and managers. 
-Additionally, customers with less education than high school graduates are less likely to apply. The odds of customers with a university degree opening a credit card is .857 times less likely compared to a high school graduate, while those having done at least one professional course are 1.39 times as likely. The odds of a divorced customers opening a card is less likely compared to a married customer. If a customer is single, the odds of them opening a card are 1.103 times as much. As a customer increases one year in age, the odds of them opening a credit card increases by 1.005.
+The odds coefficients reveal characteristics associated with a higher likelihood of applying for a credit card. Variable selection indicates that 'housing' and 'loan' status are not significant predictors of application outcomes, narrowing the focus to other influential factors.
 
-The bank is also interested in whether social media or personal contact is more effective in marketing. Our model shows that the odds of someone opening a credit card are 2.544 times higher for someone contacted through social media rather than directly.
+Among job categories, students exhibit the highest likelihood of opening a new credit card, particularly compared to admins and managers. Education level also impacts the likelihood: individuals with less than a high school education are less likely to apply, while those with professional courses are 1.39 times more likely than high school graduates. In contrast, those with a university degree are 0.857 times less likely than high school graduates to open a card.
+
+Marital status further affects the odds, with divorced individuals are less likely to apply than married ones, while single individuals have 1.103 times higher odds. Additionally, each additional year of age slightly increases the likelihood of applying for a credit card by a factor of 1.005.
+
+The bank is also examining the effectiveness of social media versus personal contact in marketing. The model indicates that the odds of opening a credit card are 2.544 times higher for individuals contacted through social media compared to those approached directly.
 
 As number of contacts occurring during a campaign increases for a specific customer the likelihood of them opening a credit card decreases. However, if contacts were performed in a previous campaign, the odds of them opening a card increase by 1.017, suggesting a slight potential increased interest in opening cards if it's the second campaign they've been in. 
 
