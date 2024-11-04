@@ -179,3 +179,32 @@ print(selected_predictors2)
 # actual_values <- marketing$y  # Adjust to the actual response variable name
 # rmse <- sqrt(mean((predictions - actual_values)^2))
 # print(rmse)
+
+
+
+
+
+
+## Changing the variables 
+# correcting potential issues in the data
+library(forcats)
+# Only 3 yes cases, don't want inflated SE, but still want potential knowledge from this factor
+marketing$default <- fct_collapse(marketing$default,
+                                  known = c("no", "yes"),
+                                  unknown = c("unknown")) 
+# Only 18 illiterate cases, placed that with basic.4y for similarity
+marketing$education <- fct_collapse(marketing$education,
+                                    basic.4y = c("basic.4y", "illiterate"))
+
+# Dealing with the issue of 999 meaning no previous contact
+marketing$cat_pdays <- ifelse(marketing$pdays == 999, 0, 1)
+
+# Changing the baseline so that it makes sense and it's easier to tell a story
+marketing$education <- relevel(marketing$education, ref = "high.school")
+marketing$marital <- relevel(marketing$marital, ref = "married")
+marketing$month <- relevel(marketing$month, ref = "may")
+marketing$day_of_week <- factor(marketing$day_of_week, levels = c("mon", "tue", "wed", "thu", "fri"))
+
+# making the y variable the first in the data frame
+marketing <- marketing %>% 
+  dplyr::select(y, everything())
