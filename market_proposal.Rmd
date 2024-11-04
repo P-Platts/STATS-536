@@ -155,4 +155,15 @@ suppressMessages({
 plot(roc_curve, col = "blue", lwd = 2, main = "ROC Curve for Basic Logistic Regression Model")
 ```
 
+## Results
+
+The odds coefficients for the variables show which customer characteristics make them more likely to apply for a credit card. The variable selection method showed that housing and loan weren't significant predictors for credit card outcomes. Then we see that students are the most likely to open a new credit card compared to other job holders, especially against admins and managers. 
+Additionally, customers with less education than high school graduates are less likely to apply. The odds of customers with a university degree opening a credit card is .857 times less likely compared to a high school graduate, while those having done at least one professional course are 1.39 times as likely. The odds of a divorced customers opening a card is less likely compared to a married customer. If a customer is single, the odds of them opening a card are 1.103 times as much. As a customer increases one year in age, the odds of them opening a credit card increases by 1.005.
+
+The bank is also interested in whether social media or personal contact is more effective in marketing. Our model shows that the odds of someone opening a credit card are 2.544 times higher for someone contacted through social media rather than directly.
+
+As number of contacts occurring during a campaign increases for a specific customer the likelihood of them opening a credit card decreases. However, if contacts were performed in a previous campaign, the odds of them opening a card increase by 1.017, suggesting a slight potential increased interest in opening cards if it's the second campaign they've been in. 
+
+## Conclusion
+
 
