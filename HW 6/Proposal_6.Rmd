@@ -13,6 +13,50 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Companies frequently receive numerous complaints. However, the way they resolve these issues—and the speed at which they do so—shapes individual's opinion of the company. To ensure complaints are resolved efficiently and effectively, they must be directed to the appropriate department for handling. The data supplied for analysis contained only the complaints and the departments assigned to resolve them. Most companies hire specialists to sort through complaints and direct them to the appropriate departments. However, with over 1.5 million complaints to process, this can become time-consuming, potentially leading to a decline in customer satisfaction. To improve speed, machine learning techniques can be used to determine the appropriate department for each complaint based on the language and keywords in the complaint.
 
+```{r, include=FALSE}
+library(tidytext)
+library(stopwords)
+
+dat = read.csv('CompanyComplaints.csv')
+tokens = sapply(dat$Complaint,tokenize_words)
+
+tokens <- dat %>%
+  unnest_tokens(word, Complaint) %>%
+  filter(!word %in% stopwords("en")) %>% # Remove stop words
+  filter(!word %in% c("company", "complaint", "product", "customer")) %>% # Additional custom stop words
+  count(Department, word, sort = TRUE) 
+
+top_words <- tokens %>%
+  group_by(Department) %>%
+  slice_max(n, n = 8) %>%
+  ungroup()
+
+name_mapping <- c(
+  "Debt collection" = "Debt Collection",
+  "Credit reporting, credit repair services, or other personal consumer reports" = "Credit Reporting",
+  "Money transfer, virtual currency, or money service" = "Money Services",
+  "Mortgage" = "Mortgage",
+  "Student loan" = "Student Loan",
+  "Checking or savings account" = "Bank Accounts",
+  "Credit card or prepaid card" = "Credit Cards",
+  "Payday loan, title loan, or personal loan" = "Personal Loans",
+  "Vehicle loan or lease" = "Vehicle Loan"
+)
+
+top_words <- top_words %>%
+  mutate(Department = name_mapping[Department])
+```
+```{r, echo=FALSE, fig.align='center'}
+ggplot(top_words, aes(x = reorder(word, n), y = n / 1000, fill = Department)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  coord_flip() +
+  facet_wrap(~ Department, scales = "free") +
+  labs(title = "Top 8 Words by Department",
+       x = "Words",
+       y = "Frequency (Thousands)") +
+  theme_minimal()
+```
+
 ## FIGURE HERE
 Based on the data in the bar charts, there seem to be some censored words that are very common across all department complaints. Howeverm these may not be the most helpful words given their prevalence across all departments. The model may need to find words that are both common and more unique to the correct department.
 
