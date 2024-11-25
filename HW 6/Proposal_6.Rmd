@@ -1,0 +1,26 @@
+---
+title: "Proposal"
+author: "Paul Crowley and Patric Platts"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction
+
+Companies frequently receive numerous complaints. However, the way they resolve these issues—and the speed at which they do so—shapes individual's opinion of the company. To ensure complaints are resolved efficiently and effectively, they must be directed to the appropriate department for handling. The data supplied for analysis contained only the complaints and the departments assigned to resolve them. Most companies hire specialists to sort through complaints and direct them to the appropriate departments. However, with over 1.5 million complaints to process, this can become time-consuming, potentially leading to a decline in customer satisfaction. To improve speed, machine learning techniques can be used to determine the appropriate department for each complaint based on the language and keywords in the complaint.
+
+One challenge in the dataset is that the complaints are written as sentences or paragraphs, making them unstructured and detailed descriptions of the issues. Since the complaints are strings and none are identical, they cannot be converted into categorical factors directly. This also prevents the complaints from being classified based on any common criteria for each group, resulting in unsorted complaints. To address this issue, the complaints are parsed, and specific words are extracted and counted from each complaint to help determine the appropriate department for resolution. This approach enables the application of various machine learning techniques to identify the department to which each complaint belongs. The goal of this analysis is to accurately classify complaints into their corresponding departments, identify key words or symbols that assist in the classification, determine which departments are commonly confused, and ensure the ability to classify new complaints not included in the training data for the machine learning methods.
+
+### Methodology
+
+# Method 1
+
+The first method that is proposed to be ... 
+
+# Method 2
+
+The second method that is proposed to be ...
